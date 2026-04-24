@@ -1,6 +1,6 @@
 import numpy as np
 
-def similarity(p1, p2):
+def longest_common_substring(p1, p2):
     """
     Checks the similarity between two binary strings of length L using some complex number trickery. These binary strings represent the flash patterns of two different SPECIES.
 
@@ -16,6 +16,7 @@ def similarity(p1, p2):
     ----------
     Returns the normalized similarity score s (number between 0 and 1).
     """
+    # TODO: Do the two strings have to be from distinct SPECIES? Confirm the emphasis.
     complex_p1 = []
     complex_p2 = []
 
@@ -34,6 +35,12 @@ def similarity(p1, p2):
             if p2[i] != 0:
                 cmplx_2 = np.exp(1j * p1[i] * i * 2 * np.pi / L)
                 complex_p2.append(cmplx_2)
+        
+        # Tracking the similarity between complex_p2 and step-rotated versions of complex_p1
+        # NOTE: Rotated versions of complex_p1 are created by multiplying the array by np.exp(1j * 2 * np.pi / L)
+        sim_scores = []
+        for i in range(L):
+            complex_p1
 
 
         return [complex_p1, complex_p2]
@@ -41,4 +48,4 @@ def similarity(p1, p2):
 a = np.array([1, 0, 1, 0, 0, 1])
 b = np.array([1, 1, 1, 0, 0, 1])
 
-print(similarity(a, b))
+print(longest_common_substring(a, b))
