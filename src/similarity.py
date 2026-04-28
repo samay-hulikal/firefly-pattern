@@ -1,55 +1,45 @@
 import numpy as np
+from src.longest_zero_sequence import longest_zero_sequence_rolled
 
-def longest_common_substring(p1, p2):
+def similarity_score(p1, p2):
     """
-    Checks the similarity between two binary strings of length L by mapping the bits to angles on a circle. These binary strings represent the flash patterns of two different SPECIES.
+    Computes the similarity between two patterns p1 and p2 and returns a score from 0 to 1. Similarity is defined as the longest "circular" substring that is present in p1 and cyclic permutations of p2. 
 
     Parameters
     ----------
-    p1 : np.array
-        One dimensional array containing binary values of length L specifying a flash pattern of an agent.
+    p1 : One dimensional np.array containing binary values of length L specifying a flash pattern of an agent.
 
-    p2 : np.array
-        One dimensional array containing binary values of length L specifying a flash pattern of an agent.
+    p2 : One dimensional np.array containing binary values of length L specifying a flash pattern of an agent.
 
     Returns
     ----------
-    Returns the normalized similarity score s (number between 0 and 1).
+    Returns the normalized similarity score s (between 0 and 1) defined as the longest "circular" substring in p1 and cyclic permutations of p2 divided by the length L of the string.
     """
-
-    # TODO: Do the two strings have to be from distinct SPECIES? Confirm the emphasis.
-    angle_p1 = np.array([])
-    angle_p2 = np.array([])
-
-    # Transforming the strings to a list of angles that represent points on a circle
+    
     if p1.size != p2.size:
-        print("\nThe binary strings are not of the same size!!")
+        print("\nThe two patterns have different lengths!")
         return
     else:
-        L = p1.size
-
-        for i in range(L):
-            if p1[i] != 0:
-                angle_1 =  p1[i] * i * 2 * np.pi / L
-                angle_p1 = np.append(angle_p1, angle_1)
-
-            if p2[i] != 0:
-                angle_2 =  p2[i] * i * 2 * np.pi / L
-                angle_p2 = np.append(angle_p2, angle_2)
         
-        # Tracking the similarity between angle_p2 and step-rotated versions of angle_p1
-        # INFO: Rotated versions of angle_p1 are obtained by successively adding the array containing angles (in radians) with 2\pi/L. However, the angles need to be in [0, 2\pi).
-        sim_scores = np.array([])
+        L = p1.size
+        common_substring = np.array([])
 
         for i in range(L):
-            rotated_angle_p1 = angle_p1 + (2 * i * np.pi / L)  # Adding the discrete angle unit to effectively cause a cyclic rotation of the array
-            rotated_angle_p1 = rotated_angle_p1 % (2 * np.pi) # Modulo 2\pi so that angles remain in [0, 2\pi).
-            score = len([x for x in rotated_angle_p1 if np.any(np.isclose(x, angle_p2))])    # Calculates the intersection between the arrays and then calculates their length. Needs np.isclose(arr1, arr2, atol=1e-8, rtol=1e-5) (defaults) for floating points.
-            sim_scores = np.append(sim_scores, score)
 
-        return np.max(sim_scores)
+            # Rotated version of p2
+            p2_rotated = np.roll(p2, i) # Rolls the array right
+            pdiff = p1 - p2_rotated
 
-a = np.array([1, 0, 1, 0, 0, 1])
-b = np.array([1, 1, 1, 0, 0, 1])
+            # Finding the longest common "circular" substring between p1 and p2_rotated
+            common_substring = np.append(common_substring, longest_zero_sequence_rolled(pdiff))
+            print(p1)
+            print(p2_rotated)
+            print(common_substring)
+            print("\n")
 
-print(longest_common_substring(a, b))
+        return (np.max(common_substring)/L)
+
+#INFO: Some test examples to check the function
+# a = np.array([1, 0, 1, 0, 0, 0])
+# b = np.array([1, 0, 1, 0, 0, 1])
+# print(similarity_score(a, b))
