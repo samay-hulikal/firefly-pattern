@@ -13,7 +13,7 @@ def similarity_score(p1, p2):
 
     Returns
     ----------
-    Returns the normalized similarity score s (between 0 and 1) defined as the longest "circular" substring in p1 and cyclic permutations of p2 divided by the length L of the string.
+    np.max(common_substring)/L : Returns the normalized similarity score s (between 0 and 1) defined as the longest "circular" substring in p1 and cyclic permutations of p2 divided by the length L of the string.
     """
     
     if p1.size != p2.size:
