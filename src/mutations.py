@@ -37,7 +37,7 @@ def swap_bit(p):
 
     rand_location = np.random.randint(0, p.size) # The upper bound is exclusive-- integers are generated from [0 to p.size -1]
     rand_location_right = (rand_location + 1) % p.size # Ensures that the last element can swap with the first element
-    #WARN: The above is a change from Chantal's code where the end cannot swap with the first element.
+    #WARN: The above is a slight change from Chantal's code where the end cannot swap with the first element.
     
     p_swapped_right[rand_location], p_swapped_right[rand_location_right] =  p_swapped_right[rand_location_right], p_swapped_right[rand_location] # You need to perform this assignment simultaneously so as not to rewrite the np.array.
     return p_swapped_right

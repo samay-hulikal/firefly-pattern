@@ -17,8 +17,7 @@ def similarity_score(p1, p2):
     """
     
     if p1.size != p2.size:
-        print("\nThe two patterns have different lengths!")
-        return
+        raise ValueError("The two patterns have different lengths!")
     else:
         
         L = p1.size
@@ -32,10 +31,6 @@ def similarity_score(p1, p2):
 
             # Finding the longest common "circular" substring between p1 and p2_rotated
             common_substring = np.append(common_substring, longest_zero_sequence_rolled(pdiff))
-            print(p1)
-            print(p2_rotated)
-            print(common_substring)
-            print("\n")
 
         return (np.max(common_substring)/L)
 

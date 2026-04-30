@@ -1,7 +1,8 @@
 import numpy as np
 from scipy.stats import mode
+from src.average_similarity_scores import average_similarity_scores
 
-#WARN: Might be a good idea to consider how differing population sizes might influence the kinds of patterns that are evolved
+#WARN: Might be a good idea to consider how differing population sizes might influence the kinds of patterns that are evolved. For example, do simpler patterns emerge in species that are more populous?
 #INFO: What really matters is not the absolute costs w_similarity and w_predation, but rather the ration between the quantities
 
 def flash_pattern_evolution(n_flies_in_species, n_species, w_similarity, w_predation, L_seq, iterations):
@@ -28,11 +29,25 @@ def flash_pattern_evolution(n_flies_in_species, n_species, w_similarity, w_preda
     #TODO: I am not sure why this buffer is necessary and why it cannot be defined more precisely from iterations
     similarity_scores = np.full((n_flies_in_species, n_species, buffer_size), np.nan) # Has to mostly be np.nan because a numerical value will affect the calculated average
 
-    #INFO: Stored information starting at t0 and in intervals of dt. The bit-wise mode of all fireflies in a given species is stored every dt time steps.
+    #INFO: Stored information starting at iteration t0 and in intervals of dt. The bit-wise mode of all fireflies in a given species is stored every dt iterations. Because the actual information stored is the bit-wise mode, early on, it's likely that no firefly actually has that pattern.
     t0 = 0
     dt = 2
-    recording_indices = np.arange(t0, iterations + 1, dt) # Array of indices where information needs to be recorded. Needs the + 1 because the upper bound is exclusive, again
-    recorded_pattern_modes = np.zeros((n_species, L_seq, recording_indices.size)) # recorded_sequence_modes[j, :, t] is the bit-wise mode of all fireflies in species j at index t
+    recording_indices = np.arange(t0, iterations + 1, dt) # Array of iterations when information needs to be recorded. Needs the + 1 because the upper bound is exclusive, again
+    recorded_pattern_modes = np.zeros((n_species, L_seq, recording_indices.size)) # recorded_pattern_modes[j, :, t] is the bit-wise mode of all fireflies in species j at iteration t
+
+    #INFO: Beginning of the evolution
+    for t in range(iterations):
+        # In this current generation...
+
+        #INFO: Computing the average similarity scores
+        avg_sim_mat = average_similarity_scores(n_flies_in_species, n_species, all_patterns) # Computing the average similarity scores between the fireflies in this generation/iteration
+        print(avg_sim_mat)
+        
+        #INFO: Intra-species competition + mutations
+        
+
+
+
 
     for j in range(n_species):
         recorded_pattern_modes[j, :, t0] = mode(all_patterns[:, j, :]).mode
@@ -47,11 +62,11 @@ def flash_pattern_evolution(n_flies_in_species, n_species, w_similarity, w_preda
 
 #INFO: Some test examples to check the function
 flash_pattern_evolution(
-        5,  # n_flies_in_species
-        3,  # n_species
+        3,  # n_flies_in_species
+        2,  # n_species
         1,  # w_similarity
         1,  # w_predation
         7,  # L_seq
-        11  # iterations
+        2  # iterations
         )
 
