@@ -1,11 +1,13 @@
 import numpy as np
 from scipy.stats import mode
+from src.compete_all_and_copy import compete_all_and_copy
 from src.average_similarity_scores import average_similarity_scores
+from src.predation_risk import predation_risk
 
 #WARN: Might be a good idea to consider how differing population sizes might influence the kinds of patterns that are evolved. For example, do simpler patterns emerge in species that are more populous?
 #INFO: What really matters is not the absolute costs w_similarity and w_predation, but rather the ration between the quantities
 
-def flash_pattern_evolution(n_flies_in_species, n_species, w_similarity, w_predation, L_seq, iterations):
+def flash_pattern_evolution(n_flies_in_species, n_species, w_similarity, w_predation, L_seq, iterations, mutation_probability):
     """
     Function that initializes flash patterns for all n_species * n_flies_in_species fireflies and also runs the pattern evolution algorithm on them.
 
@@ -17,52 +19,41 @@ def flash_pattern_evolution(n_flies_in_species, n_species, w_similarity, w_preda
     w_predation : Coefficient scaling the predation risk
     L_seq : Length of the bit string that contains the flash pattern
     iterations : Number of cycles over which the evolution algorithm runs
+    mutation_probability : Used to determine mutation rate. np.random.rand() generates a random number in [0, 1]. Mutations are introduced if this number is less than mutation_probability
 
     Returns
     ----------
     """
 
     all_patterns = np.random.randint(0, 2, (n_flies_in_species, n_species, L_seq)) # Assigns 0's and 1's (equal probability) such that pattern_matrix[i, j, :] is the flash pattern of firefly i of species j. Upper bound is exclusive in np.random.randint()
-    costs = np.zeros((n_flies_in_species, n_species, iterations)) # costs[i, j, :] has the cost of firefly i of species j across all iterations of the algorithm
-    #TODO: Do not fully understand costs
-    buffer_size = 4
-    #TODO: I am not sure why this buffer is necessary and why it cannot be defined more precisely from iterations
-    similarity_scores = np.full((n_flies_in_species, n_species, buffer_size), np.nan) # Has to mostly be np.nan because a numerical value will affect the calculated average
 
-    #INFO: Stored information starting at iteration t0 and in intervals of dt. The bit-wise mode of all fireflies in a given species is stored every dt iterations. Because the actual information stored is the bit-wise mode, early on, it's likely that no firefly actually has that pattern.
+    #INFO: Stored information starting at iteration t0 and in intervals of dt. The bit-wise mode and evolutionary costs of all fireflies in a given species is stored every dt iterations. Because the actual pattern information stored is the bit-wise mode, early on, it's likely that no firefly actually has that pattern.
     t0 = 0
     dt = 2
     recording_indices = np.arange(t0, iterations + 1, dt) # Array of iterations when information needs to be recorded. Needs the + 1 because the upper bound is exclusive, again
     recorded_pattern_modes = np.zeros((n_species, L_seq, recording_indices.size)) # recorded_pattern_modes[j, :, t] is the bit-wise mode of all fireflies in species j at iteration t
+    recorded_costs = np.zeros((n_flies_in_species, n_species, iterations)) # recorded_costs[i, j, :] has the total evolutionary cost (predation risk and average similarity scores) of firefly i of species j across all iterations of the algorithm
 
     #INFO: Beginning of the evolution
+    record_idx = 0
     for t in range(iterations):
         # In this current generation...
 
+        #INFO: Computing the average similarity scores
+        avg_sim_mat = average_similarity_scores(n_flies_in_species, n_species, all_patterns) # Computing the average similarity scores between the fireflies in this generation/iteration
+
         #INFO: Intra-species competition + mutations
-        
+        all_patterns = compete_all_and_copy(n_flies_in_species, n_species, w_similarity, w_predation, all_patterns, avg_sim_mat, mutation_probability)
 
+        #INFO: Recording the information
+        if t in recording_indices:
+            for j in range(n_species):
+                recorded_pattern_modes[j, :, record_idx] = mode(all_patterns[:, j, :]).mode
 
+            record_idx = record_idx + 1
 
+        for j in range(n_species):
+            for i in range(n_flies_in_species):
+                recorded_costs[i, j, t] = ((w_similarity * avg_sim_mat[i, j]) + (w_predation * predation_risk(all_patterns[i, j, :])))/(w_predation + w_similarity)
 
-    for j in range(n_species):
-        recorded_pattern_modes[j, :, t0] = mode(all_patterns[:, j, :]).mode
-
-    for j in range(n_species):
-        print(f"Species {j}:\n")
-        print(f"Mode of the species: {recorded_pattern_modes[j, :, t0]}")
-        for i in range(n_flies_in_species):
-            print(f"Pattern of firefly {i}: {all_patterns[i, j, :]}")
-
-
-
-#INFO: Some test examples to check the function
-flash_pattern_evolution(
-        3,  # n_flies_in_species
-        2,  # n_species
-        1,  # w_similarity
-        1,  # w_predation
-        7,  # L_seq
-        2  # iterations
-        )
-
+    return recorded_pattern_modes, recorded_costs

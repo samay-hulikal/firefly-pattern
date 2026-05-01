@@ -18,6 +18,7 @@ def average_similarity_scores(n_flies_in_species, n_species, allpatterns):
 
     average_similarity_score_matrix = np.zeros((n_flies_in_species, n_species))
 
+    #OPTIM: Claude thinks that this might also be a speed bottleneck and using vector operations might negate the for loops
     for j in range(n_species):
         for i in range(n_flies_in_species):
             #INFO: Computing the average similarity score of a given firefly
