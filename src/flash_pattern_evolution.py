@@ -11,8 +11,8 @@ def flash_pattern_evolution(n_flies_in_species, n_species, w_similarity, w_preda
 
     Parameters
     ----------
-    n_species : Number of species of fireflies
     n_flies_in_species : Number of firefly agents per species
+    n_species : Number of species of fireflies
     w_similarity : Coefficient scaling the similarity cost
     w_predation : Coefficient scaling the predation risk
     L_seq : Length of the bit string that contains the flash pattern
@@ -39,10 +39,6 @@ def flash_pattern_evolution(n_flies_in_species, n_species, w_similarity, w_preda
     for t in range(iterations):
         # In this current generation...
 
-        #INFO: Computing the average similarity scores
-        avg_sim_mat = average_similarity_scores(n_flies_in_species, n_species, all_patterns) # Computing the average similarity scores between the fireflies in this generation/iteration
-        print(avg_sim_mat)
-        
         #INFO: Intra-species competition + mutations
         
 
