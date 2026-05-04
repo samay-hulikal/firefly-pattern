@@ -1,6 +1,6 @@
 import numpy as np
 
-def longest_zero_sequence_rolled(arr1):
+def longest_zero_sequence_doubled(arr1):
     """
     Finds the longest sequence of zeros in the numpy array considering cyclic permutations.
 
@@ -15,21 +15,16 @@ def longest_zero_sequence_rolled(arr1):
 
     """
 
-    longest_zero_unrolled = np.array([])
+    #INFO: Optimized search for the longest string of zeros by doubling the array
+    arr1_doubled = np.concatenate([arr1, arr1])
+    arr1_doubled_padded = np.concatenate((np.array([2]), arr1_doubled, np.array([2]))) # Padded by dummy values
 
-    L = arr1.size
+    # Finding the longest string of zeros in this rolled np.array
+    nonzero_elements = np.where(arr1_doubled_padded !=0)[0] # Stores indices of non-zero elements
+    string_zeros = np.diff(nonzero_elements) - 1 # Length of the strings of zeros
+    longest_zero_sequence = np.max(string_zeros)
 
-    for i in range(L):
-
-        arr1_padded = np.concatenate((np.array([2]), np.roll(arr1, i), np.array([2]))) # Padded by dummy values
-
-        # Finding the longest string of zeros in this rolled np.array
-        nonzero_elements = np.where(arr1_padded !=0)[0] # Stores indices of non-zero elements
-        string_zeros = np.diff(nonzero_elements) - 1 # Length of the strings of zeros
-        longest_zero_unrolled = np.append(longest_zero_unrolled, np.max(string_zeros))
-
-    longest_zero_rolled = np.max(longest_zero_unrolled)
-    return longest_zero_rolled
+    return min(longest_zero_sequence, arr1.size)
 
 def similarity_score(p1, p2):
     """
@@ -51,7 +46,7 @@ def similarity_score(p1, p2):
     else:
         
         L = p1.size
-        common_substring = np.array([])
+        longest_zero = 0
 
         for i in range(L):
 
@@ -60,12 +55,14 @@ def similarity_score(p1, p2):
             pdiff = p1 - p2_rotated
 
             # Finding the longest common "circular" substring between p1 and p2_rotated
-            common_substring = np.append(common_substring, longest_zero_sequence_rolled(pdiff))
-            #OPTIM: This method is leading to L^2 comparisons and slowing down the code; this is the main bottleneck. Use Chantal's method of doubling the sequence to compute similarity scores.
+            run = longest_zero_sequence_doubled(pdiff)
+            if run > longest_zero:
+                longest_zero = run
 
-        return (np.max(common_substring)/L)
+        return longest_zero/L
 
 #INFO: Some test examples to check the function
-# a = np.array([1, 0, 1, 0, 0, 0])
+# a = np.array([0, 0, 1, 0, 0, 0])
 # b = np.array([1, 0, 1, 0, 0, 1])
+# print(longest_zero_sequence_doubled(a))
 # print(similarity_score(a, b))
