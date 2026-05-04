@@ -24,7 +24,7 @@ def longest_zero_sequence_doubled(arr1):
     string_zeros = np.diff(nonzero_elements) - 1 # Length of the strings of zeros
     longest_zero_sequence = np.max(string_zeros)
 
-    return min(longest_zero_sequence, arr1.size)
+    return min(longest_zero_sequence, arr1.size) # min(a, b) selects the minimum of the two numbers; needed hear for the singular case of the entire array being filled with 0's
 
 def similarity_score(p1, p2):
     """
