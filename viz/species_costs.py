@@ -27,7 +27,7 @@ def plot_species_costs(cost_array):
                                  name=f"Species {j}"))
 
     fig.update_layout(xaxis_title="Generation", yaxis_title="Average cost of each species")
-    fig.write_html(f"figs/avg_costs_{arr_dims[0]}_ffs_{arr_dims[1]}_sp_{arr_dims[2]}_gens.html") # Plots written to figs/
+    fig.write_html(f"figs/plots/avg_costs_{arr_dims[0]}_ffs_{arr_dims[1]}_sp_{arr_dims[2]}_gens.html") # Plots written to figs/
     
     print("Done plotting the average costs!")
     return 0
